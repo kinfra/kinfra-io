@@ -107,6 +107,10 @@ internal class BufferOutputStream private constructor(expectedSize: Int?) : Abst
 
 internal class BufferInputStream(private val data: ByteBuffer) : AbstractByteStream(), InputByteStream {
 
+    init {
+        require(data.isReadOnly) { "Buffer must be read-only" }
+    }
+
     override suspend fun read(buffer: ByteBuffer): Boolean {
         checkOpened()
         val count = data.transferTo(buffer)

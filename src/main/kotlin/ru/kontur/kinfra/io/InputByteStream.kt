@@ -49,10 +49,13 @@ interface InputByteStream : ByteStream {
         /**
          * Returns a stream that reads remaining data of a [buffer].
          *
-         * Buffer's content must not be modified until the returned stream is closed.
+         * A [duplicate][ByteBuffer.duplicate] of the buffer is used,
+         * so any operations on the returned stream do not affect the [buffer]'s position, limit or mark.
+         *
+         * Buffer's content **must not** be modified until the returned stream is closed.
          */
         fun fromBuffer(buffer: ByteBuffer): InputByteStream {
-            return BufferInputStream(buffer.duplicate())
+            return BufferInputStream(buffer.asReadOnlyBuffer())
         }
 
         /**
