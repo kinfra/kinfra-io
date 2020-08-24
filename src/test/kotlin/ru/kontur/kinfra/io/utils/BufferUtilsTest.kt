@@ -1,10 +1,11 @@
-package ru.kontur.kinfra.io
+package ru.kontur.kinfra.io.utils
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import ru.kontur.kinfra.commons.binary.byteArrayOfHex
+import ru.kontur.kinfra.io.test.assertEqualBytes
 import java.nio.ByteBuffer
 
 class BufferUtilsTest {

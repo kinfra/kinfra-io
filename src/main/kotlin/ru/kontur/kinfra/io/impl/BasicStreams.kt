@@ -3,7 +3,7 @@ package ru.kontur.kinfra.io.impl
 import ru.kontur.kinfra.io.ByteStream
 import ru.kontur.kinfra.io.InputByteStream
 import ru.kontur.kinfra.io.OutputByteStream
-import ru.kontur.kinfra.io.transferTo
+import ru.kontur.kinfra.io.utils.transferTo
 import java.nio.ByteBuffer
 
 internal abstract class AbstractByteStream : ByteStream {

@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import ru.kontur.kinfra.io.*
+import ru.kontur.kinfra.io.utils.withRemainingAtMost
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
 import java.nio.file.Path

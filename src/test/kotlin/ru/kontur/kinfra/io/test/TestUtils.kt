@@ -1,4 +1,4 @@
-package ru.kontur.kinfra.io
+package ru.kontur.kinfra.io.test
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import java.nio.ByteBuffer
