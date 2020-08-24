@@ -35,9 +35,22 @@ fun ByteBuffer.transferTo(dst: ByteBuffer): Int {
  * Before return from this method the limit is restored.
  */
 inline fun <R> ByteBuffer.withRemainingAtMost(count: Int, block: (ByteBuffer) -> R): R {
+    val limit = coerceRemainingAtMost(count)
+    return withLimit(limit, block)
+}
+
+@PublishedApi
+internal fun ByteBuffer.coerceRemainingAtMost(count: Int) = minOf(limit(), position() + count)
+
+/**
+ * Executes a given [block] of code while limit of this buffer is set to the [specified value][limit].
+ *
+ * Before return from this method the limit is restored.
+ */
+inline fun <R> ByteBuffer.withLimit(limit: Int, block: (ByteBuffer) -> R): R {
     val oldLimit = limit()
     return try {
-        limit(minOf(oldLimit, position() + count))
+        limit(limit)
         block(this)
     } finally {
         limit(oldLimit)

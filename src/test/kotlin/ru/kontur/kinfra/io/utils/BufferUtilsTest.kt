@@ -11,6 +11,39 @@ import java.nio.ByteBuffer
 class BufferUtilsTest {
 
     @Nested
+    inner class WithLimit {
+
+        private val buffer = ByteBuffer.allocate(16).limit(8).position(4)
+
+        @Test
+        fun limit_is_set() {
+            buffer.withLimit(12) {
+                assertEquals(8, it.remaining())
+            }
+        }
+
+        @Test
+        fun restore_normally() {
+            buffer.withLimit(12) { }
+            assertEquals(4, buffer.remaining())
+        }
+
+        @Test
+        fun restore_exceptionally() {
+            lateinit var expectedException: Throwable
+            val actualException = assertThrows<Throwable> {
+                buffer.withLimit(12) {
+                    expectedException = Throwable("test")
+                    throw expectedException
+                }
+            }
+            assertEquals(expectedException, actualException)
+            assertEquals(4, buffer.remaining())
+        }
+
+    }
+
+    @Nested
     inner class WithRemainingAtMost {
 
         private val buffer = ByteBuffer.allocate(16).limit(8).position(4)
