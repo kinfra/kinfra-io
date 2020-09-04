@@ -12,7 +12,7 @@ ext {
     ]
 
     branch = project.properties["branch"]?.toString()
-    isStableBranch = false // (branch == "master") || branch?.startsWith("release-")
+    isStableBranch = (branch == "master") || branch?.startsWith("release-")
 }
 
 group = "ru.kontur.kinfra"
@@ -20,8 +20,7 @@ archivesBaseName = "kinfra-io"
 version = release + (isStableBranch ? "" : "-SNAPSHOT")
 
 dependencies {
-    allMain platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${versions.coroutines}")
-
+    implementation platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${versions.coroutines}")
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
 
     testImplementation "ru.kontur.kinfra:kinfra-commons:${versions.commons}"
