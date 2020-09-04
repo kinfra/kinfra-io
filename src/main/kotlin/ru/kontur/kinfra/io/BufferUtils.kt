@@ -4,7 +4,7 @@ import ru.kontur.kinfra.io.utils.transferTo
 import ru.kontur.kinfra.io.utils.withRemainingAtMost
 import java.nio.ByteBuffer
 
-// todo: hide/remove before next release
+// todo: remove before next release
 
 @Deprecated(
     "Moved to utils package",
@@ -12,7 +12,7 @@ import java.nio.ByteBuffer
         "transferTo(dst)",
         "ru.kontur.kinfra.io.utils.transferTo"
     ),
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.HIDDEN
 )
 @Suppress("DEPRECATION_ERROR")
 fun ByteBuffer.transferTo(dst: ByteBuffer): Int {
@@ -25,7 +25,7 @@ fun ByteBuffer.transferTo(dst: ByteBuffer): Int {
         "withRemainingAtMost(count, block)",
         "ru.kontur.kinfra.io.utils.withRemainingAtMost"
     ),
-    level = DeprecationLevel.ERROR
+    level = DeprecationLevel.HIDDEN
 )
 inline fun <R> ByteBuffer.withRemainingAtMost(count: Int, block: (ByteBuffer) -> R): R {
     return withRemainingAtMost(count, block)
