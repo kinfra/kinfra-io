@@ -22,7 +22,8 @@ interface OutputByteStream : ByteStream {
      * Writes a [buffer] to this stream.
      *
      * The buffer **must not** be accessed by the caller thereafter.
-     * Implementation is free to store it internally and use it at any time.
+     * Implementation is free to store it internally and use it at any time,
+     * but **must not** modify its contents.
      *
      * @throws IOException if an I/O error occurs
      */

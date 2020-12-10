@@ -23,13 +23,11 @@ suspend fun <T : SuspendingCloseable, R> T.use(block: suspend (T) -> R): R {
     } finally {
         try {
             close()
-        } catch (e: CancellationException) {
-            // just ignore, no need to collect it
         } catch (e: Throwable) {
-            if (exception != null) {
-                exception.addSuppressed(e)
-            } else {
+            if (exception == null) {
                 throw e
+            } else if (e !is CancellationException) {
+                exception.addSuppressed(e)
             }
         }
     }
@@ -41,12 +39,10 @@ suspend fun Collection<SuspendingCloseable>.closeAll() {
     for (closeable in this@closeAll) {
         try {
             closeable.close()
-        } catch (e: CancellationException) {
-            // just ignore, no need to collect it
         } catch (e: Throwable) {
             if (exception == null) {
                 exception = e
-            } else {
+            } else if (e !is CancellationException) {
                 exception.addSuppressed(e)
             }
         }
