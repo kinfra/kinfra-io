@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 /**
  * Stream of binary data.
  *
+ * Implementations are generally non-thread-safe.
+ *
  * @see InputByteStream
  * @see OutputByteStream
  */

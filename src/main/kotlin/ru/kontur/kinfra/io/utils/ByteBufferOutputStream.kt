@@ -30,7 +30,7 @@ class ByteBufferOutputStream : ByteArrayOutputStream {
     companion object {
 
         /**
-         * Runs a block of code, that writes data to a stream, and returns a buffer containing that data.
+         * Runs a [block] of code that writes data to a stream, and returns a buffer containing that data.
          *
          * @param expectedSize expected amount of data to be collected (in bytes)
          */

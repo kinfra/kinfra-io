@@ -7,6 +7,10 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.file.Path
 
+/**
+ * Source of binary data.
+ */
+@JvmDefaultWithoutCompatibility
 interface InputByteStream : ByteStream {
 
     /**
@@ -24,7 +28,6 @@ interface InputByteStream : ByteStream {
      * @throws IOException if an I/O error occurs when reading from this stream or writing into the output stream
      * @return number of transferred bytes
      */
-    @JvmDefault
     suspend fun transferTo(output: OutputByteStream): Long {
         val buffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE)
         return ByteStream.transfer(this, output, buffer)
