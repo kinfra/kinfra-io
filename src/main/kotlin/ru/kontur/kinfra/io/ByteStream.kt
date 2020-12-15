@@ -5,6 +5,8 @@ import java.nio.ByteBuffer
 /**
  * Stream of binary data.
  *
+ * Implementations are generally non-thread-safe.
+ *
  * @see InputByteStream
  * @see OutputByteStream
  */
@@ -20,12 +22,15 @@ interface ByteStream : SuspendingCloseable {
 
     companion object {
 
-        internal suspend fun transfer(input: InputByteStream, output: OutputByteStream, buffer: ByteBuffer) {
-            while (input.read(buffer)) {
+        internal suspend fun transfer(input: InputByteStream, output: OutputByteStream, buffer: ByteBuffer): Long {
+            var totalCount = 0L
+            while (input.read(buffer) || buffer.position() > 0) {
                 buffer.flip()
                 output.write(buffer)
+                totalCount += buffer.position()
                 buffer.compact()
             }
+            return totalCount
         }
 
     }

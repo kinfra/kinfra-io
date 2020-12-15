@@ -50,8 +50,9 @@ internal class NullInputStream : AbstractByteStream(), InputByteStream {
         return false
     }
 
-    override suspend fun transferTo(output: OutputByteStream) {
+    override suspend fun transferTo(output: OutputByteStream): Long {
         checkOpened()
+        return 0
     }
 
 }
@@ -117,11 +118,13 @@ internal class BufferInputStream(private val data: ByteBuffer) : AbstractByteStr
         return count > 0 || data.hasRemaining()
     }
 
-    override suspend fun transferTo(output: OutputByteStream) {
+    override suspend fun transferTo(output: OutputByteStream): Long {
         checkOpened()
+        val totalCount = data.remaining().toLong()
         while (data.hasRemaining()) {
             output.write(data)
         }
+        return totalCount
     }
 
 }

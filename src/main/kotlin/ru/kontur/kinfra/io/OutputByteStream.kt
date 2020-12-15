@@ -7,6 +7,10 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.file.Path
 
+/**
+ * Sink of binary data.
+ */
+@JvmDefaultWithoutCompatibility
 interface OutputByteStream : ByteStream {
 
     /**
@@ -22,7 +26,8 @@ interface OutputByteStream : ByteStream {
      * Writes a [buffer] to this stream.
      *
      * The buffer **must not** be accessed by the caller thereafter.
-     * Implementation is free to store it internally and use it at any time.
+     * Implementation is free to store it internally and use it at any time,
+     * but **must not** modify its contents.
      *
      * @throws IOException if an I/O error occurs
      */
@@ -33,7 +38,7 @@ interface OutputByteStream : ByteStream {
     companion object {
 
         /**
-         * Runs a block of code, that writes data to a stream, and returns a buffer containing that data.
+         * Runs a [block] of code that writes data to a stream, and returns a buffer containing that data.
          *
          * @param expectedSize expected amount of data to be collected (in bytes)
          */

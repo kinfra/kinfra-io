@@ -134,4 +134,25 @@ class BufferUtilsTest {
 
     }
 
+    @Nested
+    inner class CollectToArray {
+
+        @Test
+        fun non_empty() {
+            val input = byteArrayOfHex("cafebabe")
+            val buffer = ByteBuffer.wrap(input)
+            val result = buffer.collectToArray()
+            assertEquals(0, buffer.remaining())
+            assertEquals(input.size, result.size)
+            assertEqualBytes(ByteBuffer.wrap(result), input, input.size)
+        }
+
+        @Test
+        fun empty() {
+            val result = ByteBuffer.allocate(0).collectToArray()
+            assertEquals(0, result.size)
+        }
+
+    }
+
 }

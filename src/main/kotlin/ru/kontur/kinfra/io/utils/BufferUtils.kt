@@ -26,6 +26,15 @@ fun ByteBuffer.transferTo(dst: ByteBuffer): Int {
 }
 
 /**
+ * Transfers data remaining in this buffer to a newly created byte array.
+ *
+ * @return the array containing remaining data of the buffer
+ */
+fun ByteBuffer.collectToArray(): ByteArray {
+    return ByteArray(remaining()).also { get(it) }
+}
+
+/**
  * Executes a given [block] of code while limit of this buffer is set to the following value:
  *
  * `min(limit(), position() + count)`

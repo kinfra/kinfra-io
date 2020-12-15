@@ -12,7 +12,7 @@ import java.nio.file.StandardOpenOption
 
 private const val BLOCK_SIZE = 4096
 
-internal abstract class FileByteStream(
+internal abstract class AbstractFileStream(
     protected val channel: FileChannel
 ) : AbstractByteStream() {
 
@@ -31,13 +31,13 @@ internal class FileInputStream private constructor(
     private val path: Path,
     private val range: LongRange?,
     private val endPosition: Long?
-) : FileByteStream(channel), InputByteStream {
+) : AbstractFileStream(channel), InputByteStream {
 
     override suspend fun read(buffer: ByteBuffer): Boolean {
         checkOpened()
         return withContext(Dispatchers.IO) {
             if (endPosition == null) {
-                tryRead(buffer)
+                readInternal(buffer)
             } else {
                 val position = channel.position()
                 check(endPosition <= position) { "Invariant violated: position $position > $endPosition" }
@@ -46,26 +46,26 @@ internal class FileInputStream private constructor(
                     false
                 } else {
                     buffer.withRemainingAtMost(leftToRead) {
-                        tryRead(it)
+                        readInternal(it)
                     }
                 }
             }
         }
     }
 
-    private fun tryRead(dst: ByteBuffer): Boolean {
+    private fun readInternal(dst: ByteBuffer): Boolean {
         val count = channel.read(dst)
         return count != -1
     }
 
-    override suspend fun transferTo(output: OutputByteStream) {
+    override suspend fun transferTo(output: OutputByteStream): Long {
         if (output is FileOutputStream) {
             // todo: implement more efficient copy via Channel's transferTo()
         }
 
         // Direct buffers are preferred for file I/O
         val buffer = ByteBuffer.allocateDirect(BLOCK_SIZE)
-        ByteStream.transfer(this, output, buffer)
+        return ByteStream.transfer(this, output, buffer)
     }
 
     override fun toString(): String {
@@ -97,7 +97,7 @@ internal class FileOutputStream private constructor(
     channel: FileChannel,
     private val path: Path,
     private val append: Boolean
-) : FileByteStream(channel), OutputByteStream {
+) : AbstractFileStream(channel), OutputByteStream {
 
     override suspend fun write(buffer: ByteBuffer) {
         checkOpened()
