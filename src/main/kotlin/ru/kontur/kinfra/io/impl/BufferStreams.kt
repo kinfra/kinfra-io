@@ -1,61 +1,9 @@
 package ru.kontur.kinfra.io.impl
 
-import ru.kontur.kinfra.io.ByteStream
 import ru.kontur.kinfra.io.InputByteStream
 import ru.kontur.kinfra.io.OutputByteStream
 import ru.kontur.kinfra.io.utils.transferTo
 import java.nio.ByteBuffer
-
-internal abstract class AbstractByteStream : ByteStream {
-
-    private var closed: Boolean = false
-
-    protected fun checkOpened() {
-        check(!closed) { "Stream closed" }
-    }
-
-    protected fun tryClose(): Boolean {
-        return if (closed) {
-            false
-        } else {
-            closed = true
-            true
-        }
-    }
-
-    override suspend fun close() {
-        tryClose()
-    }
-
-}
-
-internal class NullOutputStream : AbstractByteStream(), OutputByteStream {
-
-    override suspend fun write(buffer: ByteBuffer) {
-        checkOpened()
-        // skip buffer's remaining data
-        buffer.position(buffer.limit())
-    }
-
-    override suspend fun put(buffer: ByteBuffer) {
-        checkOpened()
-    }
-
-}
-
-internal class NullInputStream : AbstractByteStream(), InputByteStream {
-
-    override suspend fun read(buffer: ByteBuffer): Boolean {
-        checkOpened()
-        return false
-    }
-
-    override suspend fun transferTo(output: OutputByteStream): Long {
-        checkOpened()
-        return 0
-    }
-
-}
 
 @PublishedApi
 internal class BufferOutputStream private constructor(expectedSize: Int?) : AbstractByteStream(), OutputByteStream {
