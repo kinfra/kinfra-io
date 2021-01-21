@@ -76,7 +76,7 @@ internal class FileInputStream private constructor(
 
         suspend fun open(path: Path, range: LongRange?): FileInputStream {
             return withContext(Dispatchers.IO) {
-                val channel = FileChannel.open(path, StandardOpenOption.READ)!!
+                val channel = FileChannel.open(path, StandardOpenOption.READ)
                 val endPosition = range?.let {
                     val fileSize = channel.size()
                     require(range.first >= 0 && range.first <= range.last) { "Illegal range: $range" }
@@ -115,7 +115,7 @@ internal class FileOutputStream private constructor(
         suspend fun open(path: Path, append: Boolean): FileOutputStream {
             val option = if (append) StandardOpenOption.APPEND else StandardOpenOption.TRUNCATE_EXISTING
             val channel = withContext(Dispatchers.IO) {
-                FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE, option)!!
+                FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE, option)
             }
             return FileOutputStream(channel, path, append)
         }

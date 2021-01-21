@@ -28,14 +28,9 @@ interface InputByteStream : ByteStream {
      * @throws IOException if an I/O error occurs when reading from this stream or writing into the output stream
      * @return number of transferred bytes
      */
-    suspend fun transferTo(output: OutputByteStream): Long {
-        val buffer = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE)
-        return ByteStream.transfer(this, output, buffer)
-    }
+    suspend fun transferTo(output: OutputByteStream): Long
 
     companion object {
-
-        private const val DEFAULT_BUFFER_SIZE = 8 * 1024
 
         /**
          * Returns a stream that reads data from a specified file.
