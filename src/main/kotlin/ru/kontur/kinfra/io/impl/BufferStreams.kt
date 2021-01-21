@@ -69,9 +69,8 @@ internal class BufferInputStream(private val data: ByteBuffer) : AbstractByteStr
     override suspend fun transferTo(output: OutputByteStream): Long {
         checkOpened()
         val totalCount = data.remaining().toLong()
-        while (data.hasRemaining()) {
-            output.write(data)
-        }
+        output.put(data.duplicate())
+        data.position(data.limit())
         return totalCount
     }
 

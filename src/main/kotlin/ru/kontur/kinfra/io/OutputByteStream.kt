@@ -25,14 +25,19 @@ interface OutputByteStream : ByteStream {
     /**
      * Writes a [buffer] to this stream.
      *
-     * The buffer **must not** be accessed by the caller thereafter.
-     * Implementation is free to store it internally and use it at any time,
-     * but **must not** modify its contents.
+     * Thereafter, the caller **must not** access the buffer or modify its content.
+     * Implementation is free to store it internally and use it anytime,
+     * but likewise **not allowed** to modify its content.
+     *
+     * This method generally can be implemented more efficiently than [write],
+     * so it is preferred to use over the latter when suitable.
      *
      * @throws IOException if an I/O error occurs
      */
     suspend fun put(buffer: ByteBuffer) {
-        write(buffer)
+        while (buffer.hasRemaining()) {
+            write(buffer)
+        }
     }
 
     companion object {
