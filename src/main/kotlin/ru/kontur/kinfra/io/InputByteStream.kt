@@ -11,7 +11,7 @@ import java.nio.file.Path
  * Source of binary data.
  */
 @JvmDefaultWithoutCompatibility
-interface InputByteStream : ByteStream {
+interface InputByteStream : SuspendingCloseable {
 
     /**
      * Reads from this stream into supplied [buffer].
@@ -29,6 +29,14 @@ interface InputByteStream : ByteStream {
      * @return number of transferred bytes
      */
     suspend fun transferTo(output: OutputByteStream): Long
+
+    /**
+     * Closes this stream.
+     * No further actions on it are allowed.
+     *
+     * @throws java.io.IOException if an I/O error occurs during closing
+     */
+    override suspend fun close()
 
     companion object {
 
@@ -62,6 +70,22 @@ interface InputByteStream : ByteStream {
          */
         fun nullStream(): InputByteStream {
             return NullInputStream()
+        }
+
+        /**
+         * Transfer all data from an [input stream][input] to an [output stream][output].
+         *
+         * The operation is performed using [InputByteStream.read] and [OutputByteStream.write] on a supplied [buffer].
+         */
+        internal suspend fun transfer(input: InputByteStream, output: OutputByteStream, buffer: ByteBuffer): Long {
+            var totalCount = 0L
+            while (input.read(buffer) || buffer.position() > 0) {
+                buffer.flip()
+                output.write(buffer)
+                totalCount += buffer.position()
+                buffer.compact()
+            }
+            return totalCount
         }
 
     }

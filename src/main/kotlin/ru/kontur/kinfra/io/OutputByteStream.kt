@@ -11,7 +11,7 @@ import java.nio.file.Path
  * Sink of binary data.
  */
 @JvmDefaultWithoutCompatibility
-interface OutputByteStream : ByteStream {
+interface OutputByteStream : SuspendingCloseable {
 
     /**
      * Writes remaining contents of a [buffer] to this stream.
@@ -39,6 +39,14 @@ interface OutputByteStream : ByteStream {
             write(buffer)
         }
     }
+
+    /**
+     * Closes this stream.
+     * No further actions on it are allowed.
+     *
+     * @throws java.io.IOException if an I/O error occurs during closing or flushing written data
+     */
+    override suspend fun close()
 
     companion object {
 

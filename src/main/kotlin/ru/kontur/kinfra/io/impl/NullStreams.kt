@@ -4,7 +4,7 @@ import ru.kontur.kinfra.io.InputByteStream
 import ru.kontur.kinfra.io.OutputByteStream
 import java.nio.ByteBuffer
 
-internal class NullOutputStream : AbstractByteStream(), OutputByteStream {
+internal class NullOutputStream : AbstractCloseable(), OutputByteStream {
 
     override suspend fun write(buffer: ByteBuffer) {
         checkOpened()
@@ -18,7 +18,7 @@ internal class NullOutputStream : AbstractByteStream(), OutputByteStream {
 
 }
 
-internal class NullInputStream : AbstractByteStream(), InputByteStream {
+internal class NullInputStream : AbstractCloseable(), InputByteStream {
 
     override suspend fun read(buffer: ByteBuffer): Boolean {
         checkOpened()

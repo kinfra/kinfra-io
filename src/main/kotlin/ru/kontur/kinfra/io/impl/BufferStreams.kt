@@ -6,7 +6,7 @@ import ru.kontur.kinfra.io.utils.transferTo
 import java.nio.ByteBuffer
 
 @PublishedApi
-internal class BufferOutputStream private constructor(expectedSize: Int?) : AbstractByteStream(), OutputByteStream {
+internal class BufferOutputStream private constructor(expectedSize: Int?) : AbstractCloseable(), OutputByteStream {
 
     private var data = ByteArray(expectedSize ?: DEFAULT_INITIAL_SIZE)
     private var offset = 0
@@ -34,12 +34,9 @@ internal class BufferOutputStream private constructor(expectedSize: Int?) : Abst
     }
 
     fun toBuffer(): ByteBuffer {
-        check(tryClose()) { "Stream closed" }
+        checkOpened()
+        closed = true
         return ByteBuffer.wrap(data, 0, offset)
-    }
-
-    override suspend fun close() {
-        error("This stream should not be closed via this method")
     }
 
     companion object {
@@ -54,7 +51,7 @@ internal class BufferOutputStream private constructor(expectedSize: Int?) : Abst
 
 }
 
-internal class BufferInputStream(private val data: ByteBuffer) : AbstractByteStream(), InputByteStream {
+internal class BufferInputStream(private val data: ByteBuffer) : AbstractCloseable(), InputByteStream {
 
     init {
         require(data.isReadOnly) { "Buffer must be read-only" }

@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import ru.kontur.kinfra.io.*
+import ru.kontur.kinfra.io.InputByteStream.Companion.transfer
 import ru.kontur.kinfra.io.utils.withRemainingAtMost
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -14,10 +15,9 @@ private const val BLOCK_SIZE = 4096
 
 internal abstract class AbstractFileStream(
     protected val channel: FileChannel
-) : AbstractByteStream() {
+) : AbstractCloseable() {
 
-    final override suspend fun close() {
-        if (!tryClose()) return
+    final override suspend fun closeImpl() {
         withContext(Dispatchers.IO + NonCancellable) {
             @Suppress("BlockingMethodInNonBlockingContext")
             channel.close()
@@ -65,7 +65,7 @@ internal class FileInputStream private constructor(
 
         // Direct buffers are preferred for file I/O
         val buffer = ByteBuffer.allocateDirect(BLOCK_SIZE)
-        return ByteStream.transfer(this, output, buffer)
+        return transfer(this, output, buffer)
     }
 
     override fun toString(): String {
