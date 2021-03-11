@@ -19,7 +19,6 @@ internal abstract class AbstractFileStream(
 
     final override suspend fun closeImpl() {
         withContext(Dispatchers.IO + NonCancellable) {
-            @Suppress("BlockingMethodInNonBlockingContext")
             channel.close()
         }
     }
@@ -30,27 +29,25 @@ internal class FileInputStream private constructor(
     channel: FileChannel,
     private val path: Path,
     private val range: LongRange?,
-    private val endPosition: Long?
+    private var limit: Long,
 ) : AbstractFileStream(channel), InputByteStream {
 
     override suspend fun read(buffer: ByteBuffer): Boolean {
         checkOpened()
-        return withContext(Dispatchers.IO) {
-            if (endPosition == null) {
+        val oldPosition = buffer.position()
+        val success = withContext(Dispatchers.IO) {
+            if (limit > Int.MAX_VALUE) {
                 readInternal(buffer)
             } else {
-                val position = channel.position()
-                check(endPosition <= position) { "Invariant violated: position $position > $endPosition" }
-                val leftToRead = (endPosition - position).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-                if (leftToRead == 0) {
-                    false
-                } else {
-                    buffer.withRemainingAtMost(leftToRead) {
-                        readInternal(it)
-                    }
+                val intLimit = limit.toInt()
+                buffer.withRemainingAtMost(intLimit) {
+                    readInternal(it)
                 }
             }
         }
+        limit -= buffer.position() - oldPosition
+        check(limit >= 0) { "Invariant violated: limit exceeded (requested range: $range)" }
+        return success
     }
 
     private fun readInternal(dst: ByteBuffer): Boolean {
@@ -58,11 +55,9 @@ internal class FileInputStream private constructor(
         return count != -1
     }
 
+    // todo: implement more efficient file-to-file transfer via Channel's transferTo()
     override suspend fun transferTo(output: OutputByteStream): Long {
-        if (output is FileOutputStream) {
-            // todo: implement more efficient copy via Channel's transferTo()
-        }
-
+        checkOpened()
         // Direct buffers are preferred for file I/O
         val buffer = ByteBuffer.allocateDirect(BLOCK_SIZE)
         return transfer(this, output, buffer)
@@ -75,17 +70,29 @@ internal class FileInputStream private constructor(
     companion object {
 
         suspend fun open(path: Path, range: LongRange?): FileInputStream {
-            return withContext(Dispatchers.IO) {
-                val channel = FileChannel.open(path, StandardOpenOption.READ)
-                val endPosition = range?.let {
-                    val fileSize = channel.size()
-                    require(range.first >= 0 && range.first <= range.last) { "Illegal range: $range" }
-                    require(range.last <= fileSize) { "Range $range is out of file bounds (length: $fileSize)" }
-
-                    channel.position(range.first)
-                    range.last
+            var channelToClose: FileChannel? = null
+            return try {
+                withContext(Dispatchers.IO) {
+                    val channel = FileChannel.open(path, StandardOpenOption.READ)
+                    channelToClose = channel
+                    val limit = if (range != null) {
+                        val fileSize = channel.size()
+                        require(range.first >= 0 && range.first <= range.last) { "Illegal range: $range" }
+                        require(range.last <= fileSize) { "Range $range is out of file bounds (length: $fileSize)" }
+                        channel.position(range.first)
+                        range.last - range.first
+                    } else {
+                        Long.MAX_VALUE
+                    }
+                    FileInputStream(channel, path, range, limit)
                 }
-                FileInputStream(channel, path, range, endPosition)
+            } catch (e: Throwable) {
+                channelToClose?.let { channel ->
+                    withContext(Dispatchers.IO + NonCancellable) {
+                        channel.close()
+                    }
+                }
+                throw e
             }
         }
 
@@ -114,10 +121,19 @@ internal class FileOutputStream private constructor(
 
         suspend fun open(path: Path, append: Boolean): FileOutputStream {
             val option = if (append) StandardOpenOption.APPEND else StandardOpenOption.TRUNCATE_EXISTING
-            val channel = withContext(Dispatchers.IO) {
-                FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE, option)
+            var channelToClose: FileChannel? = null
+            try {
+                return withContext(Dispatchers.IO) {
+                    val channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.CREATE, option)
+                    channelToClose = channel
+                    FileOutputStream(channel, path, append)
+                }
+            } catch (e: Throwable) {
+                withContext(Dispatchers.IO + NonCancellable) {
+                    channelToClose?.close()
+                }
+                throw e
             }
-            return FileOutputStream(channel, path, append)
         }
 
     }
