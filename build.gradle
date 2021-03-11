@@ -16,7 +16,6 @@ ext {
 }
 
 group = "ru.kontur.kinfra"
-archivesBaseName = "kinfra-io"
 version = release + (isStableBranch ? "" : "-SNAPSHOT")
 
 dependencies {
