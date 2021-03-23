@@ -11,7 +11,7 @@ import java.nio.file.Path
  * Sink of binary data.
  */
 @JvmDefaultWithoutCompatibility
-interface OutputByteStream : ByteStream {
+interface OutputByteStream : SuspendingCloseable {
 
     /**
      * Writes remaining contents of a [buffer] to this stream.
@@ -25,15 +25,28 @@ interface OutputByteStream : ByteStream {
     /**
      * Writes a [buffer] to this stream.
      *
-     * The buffer **must not** be accessed by the caller thereafter.
-     * Implementation is free to store it internally and use it at any time,
-     * but **must not** modify its contents.
+     * Thereafter, the caller **must not** access the buffer or modify its content.
+     * Implementation is free to store it internally and use it anytime,
+     * but likewise **not allowed** to modify its content.
+     *
+     * This method generally can be implemented more efficiently than [write],
+     * so it is preferred to use over the latter when suitable.
      *
      * @throws IOException if an I/O error occurs
      */
     suspend fun put(buffer: ByteBuffer) {
-        write(buffer)
+        while (buffer.hasRemaining()) {
+            write(buffer)
+        }
     }
+
+    /**
+     * Closes this stream.
+     * No further actions on it are allowed.
+     *
+     * @throws java.io.IOException if an I/O error occurs during closing or flushing written data
+     */
+    override suspend fun close()
 
     companion object {
 

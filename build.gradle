@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    release = "1.0"
+    release = "1.1"
 
     versions = [
         coroutines: '1.4.2',
@@ -16,7 +16,6 @@ ext {
 }
 
 group = "ru.kontur.kinfra"
-archivesBaseName = "kinfra-io"
 version = release + (isStableBranch ? "" : "-SNAPSHOT")
 
 dependencies {
