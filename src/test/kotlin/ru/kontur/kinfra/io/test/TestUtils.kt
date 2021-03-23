@@ -1,6 +1,7 @@
 package ru.kontur.kinfra.io.test
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import ru.kontur.kinfra.commons.binary.byteArrayOfHex
 import java.nio.ByteBuffer
 
 internal fun assertEqualBytes(buffer: ByteBuffer, expected: ByteArray, count: Int) {
@@ -15,3 +16,5 @@ internal fun assertEqualBytes(buffer: ByteBuffer, expected: ByteArray, count: In
         buffer.position(initialPosition)
     }
 }
+
+internal fun byteBufferOfHex(hex: String) = ByteBuffer.wrap(byteArrayOfHex(hex))

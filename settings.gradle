@@ -1,7 +1,7 @@
 pluginManagement {
     def versions = [
         'ru.kontur': '5.5',
-        'org.jetbrains.kotlin': '1.4.21'
+        'org.jetbrains.kotlin': '1.4.31'
     ]
 
     resolutionStrategy {

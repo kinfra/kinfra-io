@@ -4,7 +4,7 @@ plugins {
 }
 
 ext {
-    release = "1.1"
+    release = "1.1.1"
 
     versions = [
         coroutines: '1.4.2',
@@ -23,4 +23,8 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
 
     testImplementation "ru.kontur.kinfra:kinfra-commons:${versions.commons}"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile) {
+    kotlinOptions.useIR = true
 }
