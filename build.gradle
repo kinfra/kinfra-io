@@ -1,6 +1,9 @@
 plugins {
-    id "ru.kontur.library"
+    id "ru.kontur.library" version '5.5'
+    id 'java-library'
+    id 'maven-publish'
     id "org.jetbrains.kotlin.jvm"
+    id 'ru.kontur.kinfra.presets' version '1.5'
 }
 
 ext {
@@ -8,7 +11,7 @@ ext {
 
     versions = [
         coroutines: '1.4.2',
-        commons: '1.4',
+        commons: '1.7',
     ]
 
     branch = project.properties["branch"]?.toString()
@@ -27,4 +30,25 @@ dependencies {
 
 tasks.withType(org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile) {
     kotlinOptions.useIR = true
+}
+
+jar {
+    manifest.attributes "Automatic-Module-Name": "ru.kontur.kinfra.io"
+}
+
+publishing {
+    repositories {
+        def properties = project.properties
+        def repoUrl = properties["publishing.repo.url"]
+        if (repoUrl) {
+            maven {
+                url = repoUrl
+
+                credentials {
+                    username = properties["publishing.repo.username"]
+                    password = properties["publishing.repo.password"]
+                }
+            }
+        }
+    }
 }
