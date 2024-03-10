@@ -1,17 +1,17 @@
 plugins {
-    id "ru.kontur.library" version '5.5'
     id 'java-library'
     id 'maven-publish'
-    id "org.jetbrains.kotlin.jvm"
+    id "org.jetbrains.kotlin.jvm" version '1.5.31'
     id 'ru.kontur.kinfra.presets' version '1.5'
+    id 'signing'
 }
 
 ext {
     release = "1.1.1"
 
     versions = [
-        coroutines: '1.4.2',
-        commons: '1.7',
+        coroutines: '1.4.3',
+        commons   : '1.7',
     ]
 
     branch = project.properties["branch"]?.toString()
@@ -20,6 +20,7 @@ ext {
 
 group = "ru.kontur.kinfra"
 version = release + (isStableBranch ? "" : "-SNAPSHOT")
+archivesBaseName = "kinfra-io"
 
 dependencies {
     implementation platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:${versions.coroutines}")
@@ -36,7 +37,46 @@ jar {
     manifest.attributes "Automatic-Module-Name": "ru.kontur.kinfra.io"
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+signing {
+    sign publishing.publications
+}
+
 publishing {
+    publications {
+        maven(MavenPublication) {
+            pom {
+                name = 'kinfra-io'
+                group = 'ru.kontur.kinfra'
+                artifactId = 'kinfra-io'
+
+                description = 'IO for kinfra'
+                url = 'https://github.com/kinfra/kinfra-io'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'frost13it'
+                        name = 'Vladimir Petrakovich'
+                        email = 'public@frostbit.tk'
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com:kinfra/kinfra-io.git"
+                    developerConnection = 'scm:git:ssh://github.com:kinfra/kinfra-io.git'
+                    url = 'https://github.com/kinfra/kinfra-io'
+                }
+            }
+        }
+    }
     repositories {
         def properties = project.properties
         def repoUrl = properties["publishing.repo.url"]

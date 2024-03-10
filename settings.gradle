@@ -1,18 +1,1 @@
-pluginManagement {
-    def versions = [
-        'org.jetbrains.kotlin': '1.4.31'
-    ]
-
-    resolutionStrategy {
-        eachPlugin {
-            def namespace = requested.id.namespace
-            versions.forEach { prefix, version ->
-                if (namespace?.startsWith(prefix)) {
-                    useVersion(version)
-                }
-            }
-        }
-    }
-}
-
 rootProject.name = 'kinfra-io'
